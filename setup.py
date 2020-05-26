@@ -4,7 +4,7 @@ import sys
 script_args = sys.argv[1:]
 
 setup(name='assess',
-      version='0.1',
+      version='0.2',
       author='Stephan Kramer',
       author_email='s.kramer@imperial.ac.uk',
       description='Assess is a python package that implements a number of '
