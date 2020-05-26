@@ -1,19 +1,25 @@
-r"""This module contains functions that compute the coefficients in analytical solution
-to the Stokes equations in cylindrical and spherical shell domains with a smooth RHS forcing term,
-which in the 2D cylindrical shell domain takes the form:
+r"""This module contains functions that compute the coefficients in analytical
+solution to the Stokes equations in cylindrical and spherical shell domains
+with a smooth RHS forcing term, which in the 2D cylindrical shell domain takes
+the form:
 
-  f = -g (r/Rp)^k cos(n\phi) \hat{r}
+.. math::
 
-where r is the radius (distance from origin), \phi is the angle with the x-axis, Rp and Rm
-are the outer and inner radius of the shell domain,
-and \hat{r} is the outward pointing radial unit vector. The magnitude g, degree l and wave number n
-can be chosen arbitrarily. Similarly in a 3D spherical domain we
-consider the forcing term
+  f = -g (r/Rp)^k cos(n\varphi) \hat{r}
 
-  f = -g (r/Rp)^k Y_lm(\theta,\phi) \hat{r}
+where r is the radius (distance from origin), :math:`\varphi` is the angle with
+the x-axis, Rp and Rm are the outer and inner radius of the shell domain, and
+:math:`\hat{r}` is the outward pointing radial unit vector. The magnitude g,
+degree l and wave number n can be chosen arbitrarily. Similarly in a 3D
+spherical domain we consider the forcing term
 
-where \theta and \phi are the co-latitude and longitude respectively, and Y_lm is Laplace's
-spherical harmonic function of degree l and order m.
+.. math::
+
+  f = -g (r/Rp)^k Y_{lm}(\theta,\varphi) \hat{r}
+
+where :math:`\theta` and :math:`\varphi` are the co-latitude and longitude
+respectively, and :math:`Y_{lm}` is Laplace's spherical harmonic function of
+degree l and order m.
 
 We consider the following cases:
 
@@ -24,13 +30,13 @@ We consider the following cases:
 
 The functions below take the following parameters:
 
-   Rp:   outer radius
-   Rm:   inner radius
-   k:    polynomial degree of forcing term
-   n:    wave number (2D cylindrical only)
-   l:    spherical degree (3D only)
-   g:    scalar magnitude of forcing
-   nu:   viscosity
+   :param Rp:   outer radius
+   :param Rm:   inner radius
+   :param k:    polynomial degree of forcing term
+   :param n:    wave number (2D cylindrical only)
+   :param l:    spherical degree (3D only)
+   :param g:    scalar magnitude of forcing
+   :param nu:   viscosity
 
 and return the five coefficients A, B, C, D, and E used in the analytical solution.
 
@@ -39,7 +45,7 @@ latex source of the associated paper.
 """
 
 
-def solution_cylinder_smooth_fs(Rp, Rm, k, n, g, nu):
+def coefficients_cylinder_smooth_fs(Rp, Rm, k, n, g, nu):
     alpha = Rm/Rp
     A = -0.25*(alpha**2 - alpha**(k + n + 3))*Rp**(-n + 3)*g/((alpha + alpha**n)*(alpha**n - alpha)*(k + n + 1)*(k - n + 3)*nu)
     B = 0.25*Rp**(n + 3)*(alpha**(k + n + 3) - alpha**(2*n + 2))*g/((alpha**(n + 1) + 1)*(alpha**(n + 1) - 1)*(k + n + 3)*(k - n + 1)*nu)
@@ -49,7 +55,7 @@ def solution_cylinder_smooth_fs(Rp, Rm, k, n, g, nu):
     return A, B, C, D, E
 
 
-def solution_cylinder_smooth_ns(Rp, Rm, k, n, g, nu):
+def coefficients_cylinder_smooth_ns(Rp, Rm, k, n, g, nu):
     alpha = Rm/Rp
     A = 0.5*((alpha**(k + n + 3) + alpha**(2*n))*(k + n + 1)*(n + 1) - (alpha**(k + n + 1) + alpha**(2*n + 2))*(k + n + 3)*n - (alpha**(k + 3*n + 3) + 1)*(k - n + 1))*Rp**(-n + 3)*g*n/(((alpha**(n + 1) - alpha**(n - 1))**2*n**2 - (alpha**(2*n) - 1)**2)*((k + 3)**2 - n**2)*((k + 1)**2 - n**2)*nu)
     B = -0.5*((alpha**(k + 3*n + 3) + alpha**(2*n))*(k - n + 1)*(n - 1) - (alpha**(k + 3*n + 1) + alpha**(2*n + 2))*(k - n + 3)*n + (alpha**(k + n + 3) + alpha**(4*n))*(k + n + 1))*Rp**(n + 3)*g*n/(((alpha**(n + 1) - alpha**(n - 1))**2*n**2 - (alpha**(2*n) - 1)**2)*((k + 3)**2 - n**2)*((k + 1)**2 - n**2)*nu)
@@ -59,7 +65,7 @@ def solution_cylinder_smooth_ns(Rp, Rm, k, n, g, nu):
     return A, B, C, D, E
 
 
-def solution_sphere_smooth_fs(Rp, Rm, k, l, g, nu):
+def coefficients_sphere_smooth_fs(Rp, Rm, k, l, g, nu):
     alpha = Rm/Rp
     A = 0.5*Rp**(-l + 3)*(alpha**(k + 3) - alpha**(-l + 1))*g/((alpha**l - alpha**(-l + 1))*(k + l + 2)*(k - l + 3)*(2*l + 1)*nu)
     B = 0.5*Rp**(l + 4)*(alpha**(k + 4) - alpha**(l + 3))*g/((alpha**(l + 3) - 1/alpha**l)*(k + l + 4)*(k - l + 1)*(2*l + 1)*nu)
@@ -69,7 +75,7 @@ def solution_sphere_smooth_fs(Rp, Rm, k, l, g, nu):
     return A, B, C, D, E
 
 
-def solution_sphere_smooth_ns(Rp, Rm, k, l, g, nu):
+def coefficients_sphere_smooth_ns(Rp, Rm, k, l, g, nu):
     alpha = Rm/Rp
     Gamma = ((alpha**(l + 1) + alpha**(l - 3))*(2*l + 1)**2 - 2*alpha**(l - 1)*(2*l + 3)*(2*l - 1) - 4*alpha**(3*l) - 4*alpha**(-l - 2))*(k + l + 4)*(k + l + 2)*(k - l + 3)*(k - l + 1)
     A = ((alpha**(k + 2) + alpha**(l - 1))*(k + l + 2)*(2*l + 3) - (alpha**k + alpha**(l + 1))*(k + l + 4)*(2*l + 1) - 2*(alpha**(k + 2*l + 3) + alpha**(-l - 2))*(k - l + 1))*Rp**(-l + 3)*g/(Gamma*nu)
