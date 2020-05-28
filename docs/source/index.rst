@@ -1,5 +1,5 @@
-Asses
-=====
+Assess
+======
 Analytical Solutions for the Stokes Equations in Spherical Shells
 ------------------------------------------------------------------
 
