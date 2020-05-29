@@ -82,12 +82,12 @@ Keyword arguments
 -----------------
 All eight classes take the following (optional) keyword arguments with defaults
 
-=================== ======================
+=================== ==================================
  :code:`Rp=2.22`     outer radius 
  :code:`Rm=1.22`     inner radius 
  :code:`nu=1.00`     viscosity    
- :code:`g=1.00`      inner radius 
-=================== ======================
+ :code:`g=1.00`      gravitation/magnitude of forcing
+=================== ==================================
 
 Additionally, the delta-function cases have the following default for :code:`rp`
 
