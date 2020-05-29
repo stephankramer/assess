@@ -8,13 +8,23 @@ import numpy
 from math import sqrt, atan2, cos, sin, tan, acos, pi
 
 __all__ = ['SphericalStokesSolutionSmoothFreeSlip', 'SphericalStokesSolutionSmoothZeroSlip',
-           'SphericalStokesSolutionDeltaFreeSlip', 'SphericalStokesSolutionDeltaZeroSlip']
+           'SphericalStokesSolutionDeltaFreeSlip', 'SphericalStokesSolutionDeltaZeroSlip',
+           'Y', 'dYdphi', 'dYdtheta', 'Y_cartesian', 'to_spherical']
 
 
 # Legendre polynomials and their derivatives:
 
-def Y(m, l, theta, phi):
-    """Real part of spherical harmonic function Y^m_l.
+def Y(l, m, theta, phi):
+    r"""Real-valued spherical harmonic function :math:`Y_{lm}(\theta, \varphi)`
+
+    This is based on the following definition:
+
+    .. math::
+
+        Y_{lm}(\theta, \varphi) = \sqrt{\frac{(2l+1)}{4\pi}\frac{(l-m)!}{(l+m)!}}P_l^m(\cos(\theta))\cos(m\varphi)
+
+    which is equal to the real part of
+    `scipy.special.sph_harm <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.sph_harm.html>`_.
 
     :param m: order of the harmonic
     :param l: degree of the harmonic
@@ -26,8 +36,8 @@ def Y(m, l, theta, phi):
     return scipy.special.sph_harm(m, l, phi, theta).real
 
 
-def dYdphi(m, l, theta, phi):
-    """Colatitudinal derivative of spherical harmonic function Y^m_l.
+def dYdphi(l, m, theta, phi):
+    r"""Colatitudinal derivative of spherical harmonic function :math:`Y_{lm}(\theta, \varphi)`
 
     :param m: order of the harmonic
     :param l: degree of the harmonic
@@ -38,8 +48,9 @@ def dYdphi(m, l, theta, phi):
     return -m * scipy.special.sph_harm(m, l, phi, theta).imag
 
 
-def dYdtheta(m, l, theta, phi):
-    """Longitudinal derivative of spherical harmonic function Y^m_l.
+def dYdtheta(l, m, theta, phi):
+    r"""Longitudinal derivative of spherical harmonic function :math:`Y_{lm}(\theta, \varphi)`
+
 
     :param m: order of the harmonic
     :param l: degree of the harmonic
@@ -48,12 +59,12 @@ def dYdtheta(m, l, theta, phi):
     """
     # this is from http://functions.wolfram.com/Polynomials/SphericalHarmonicY/20/01/01/
     # which can be derived from (x^2-1)d/dx P^ml = sqrt(1-x^2) P^(m+1)l -mx P^ml
-    dydt = m/tan(theta) * Y(m, l, theta, phi)
+    dydt = m/tan(theta) * Y(l, m, theta, phi)
     if m < l:
         # for m==l, Y^(m+1)_l=0
         # note we fiddle with phi to obtain the desired exp(im phi)
         # despite raising m to m+1
-        dydt += sqrt((l-m)*(l+m+1)) * Y(m+1, l, theta, phi*m/(m+1))
+        dydt += sqrt((l-m)*(l+m+1)) * Y(l, m+1, theta, phi*m/(m+1))
     return dydt
 
 
@@ -68,6 +79,20 @@ def to_spherical(X):
     return r, theta, phi
 
 
+def Y_cartesian(l, m, X):
+    """Real-valued spherical harmonic function that takes Cartesian coordinates
+
+    See :func:`Y`
+    return Y
+    :param m: order of the harmonic
+    :param l: degree of the harmonic
+    :param theta: co-latitude in [0, pi]
+    :param phi: longitude in [0, 2*pi]
+    """
+    r, theta, phi = to_spherical(X)
+    return Y(l, m, theta, phi)
+
+
 class SphericalStokesSolution(AnalyticalStokesSolution):
     r"""Base class for solutions in spherical shell domains.
 
@@ -76,7 +101,7 @@ class SphericalStokesSolution(AnalyticalStokesSolution):
 
     .. math::
 
-        \mathcal{P}(r,\theta,\varphi) = \mathcal{P}_l(r)Y_lm(\theta, \varphi)
+        \mathcal{P}(r,\theta,\varphi) = \mathcal{P}_l(r)Y_{lm}(\theta, \varphi)
 
     so that the velocity solution takes the form:
 
@@ -128,7 +153,7 @@ class SphericalStokesSolution(AnalyticalStokesSolution):
         # u_phi = -1/(r sin(theta)) d/dphi d/dr (r P)
         #       = -1/(r sin(theta)) * (dP/dphi + r d/dphi d/dr P)
         #       = -1/sin(theta) * (Pl/r + dPl/dr) * dY/dphi
-        return -(self.Pl(r)/r + self.dPldr(r)) / sin(theta) * dYdphi(self.m, self.l, theta, phi)
+        return -(self.Pl(r)/r + self.dPldr(r)) / sin(theta) * dYdphi(self.l, self.m, theta, phi)
 
     def u_r(self, r, theta, phi):
         """Return radial component of velocity.
@@ -199,7 +224,7 @@ class SphericalStokesSolutionDelta(SphericalStokesSolution):
 
     .. math ::
 
-        \mathcal{P}(r,\theta,\varphi) = \mathcal{P}_l(r)Y_lm(\theta, \varphi)
+        \mathcal{P}(r,\theta,\varphi) = \mathcal{P}_l(r)Y_{lm}(\theta, \varphi)
 
     and velocity
 
@@ -260,7 +285,7 @@ class SphericalStokesSolutionSmooth(SphericalStokesSolution):
 
     .. math ::
 
-        \mathcal{P}(r,\theta,\varphi) = \mathcal{P}_l(r)Y_lm(\theta, \varphi)
+        \mathcal{P}(r,\theta,\varphi) = \mathcal{P}_l(r)Y_{lm}(\theta, \varphi)
 
     and velocity
 

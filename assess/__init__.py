@@ -4,8 +4,7 @@ in cylindrical and spherical domains.
 __all__ = ['CylindricalStokesSolutionSmoothFreeSlip', 'CylindricalStokesSolutionSmoothZeroSlip',
            'CylindricalStokesSolutionDeltaFreeSlip', 'CylindricalStokesSolutionDeltaZeroSlip',
            'SphericalStokesSolutionSmoothFreeSlip', 'SphericalStokesSolutionSmoothZeroSlip',
-           'SphericalStokesSolutionDeltaFreeSlip', 'SphericalStokesSolutionDeltaZeroSlip']
-from .cylindrical import (CylindricalStokesSolutionSmoothFreeSlip, CylindricalStokesSolutionSmoothZeroSlip,
-                          CylindricalStokesSolutionDeltaFreeSlip, CylindricalStokesSolutionDeltaZeroSlip)
-from .spherical import (SphericalStokesSolutionSmoothFreeSlip, SphericalStokesSolutionSmoothZeroSlip,
-                        SphericalStokesSolutionDeltaFreeSlip, SphericalStokesSolutionDeltaZeroSlip)
+           'SphericalStokesSolutionDeltaFreeSlip', 'SphericalStokesSolutionDeltaZeroSlip',
+           'Y', 'dYdphi', 'dYdtheta', 'to_spherical']
+from .cylindrical import *  # NOQA:F403
+from .spherical import *  # NOQA:F403

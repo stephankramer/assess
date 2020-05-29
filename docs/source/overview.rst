@@ -26,7 +26,7 @@ where in 2D, we use cylindrical coordinates with radius :math:`r` and azimuthal 
 and in 3D, spherical coordinates with radius :math:`r`, co-latitude :math:`\theta`,
 and longitude :math:`\varphi`. The radial dependency is a simple polynomial (monomial) 
 of order :math:`k`. In 2D, :math:`n` is the wave number and in 3D :math:`l` and :math:`m` are the
-degree and order of the spherical harmonic function :math:`Y_{lm}`.
+degree and order of the spherical harmonic function :math:`Y_{lm}` (see :func:`assess.Y` for definition).
 
 **Or**, :math:`\rho'` is a perturbation at a specified radius :math:`r'`
 
