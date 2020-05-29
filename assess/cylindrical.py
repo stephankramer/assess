@@ -18,6 +18,10 @@ class AnalyticalStokesSolution(object):
         :param g: magnitude of source term
         :param nu: viscosity
         """
+        self.nu = nu
+        self.g = g
+        self.Rp = Rp
+        self.Rm = Rm
 
 
 class CylindricalStokesSolution(AnalyticalStokesSolution):
