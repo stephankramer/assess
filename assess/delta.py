@@ -60,7 +60,6 @@ half of the solution.
 
 
 def coefficients_cylinder_delta_fs(Rp, Rm, rp, n, g, nu, sign):
-    """Some docstring"""
     alpha_pm, alpha_mp = [Rp/rp, Rm/rp][::int(sign)]
     pm = sign
 
