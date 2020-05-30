@@ -3,7 +3,7 @@ from __future__ import division
 from assess.cylindrical import AnalyticalStokesSolution
 from assess.smooth import coefficients_sphere_smooth_fs, coefficients_sphere_smooth_ns
 from assess.delta import coefficients_sphere_delta_fs, coefficients_sphere_delta_ns
-import scipy
+import scipy.special
 import numpy
 from math import sqrt, atan2, cos, sin, tan, acos, pi
 
