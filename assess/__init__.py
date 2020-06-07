@@ -5,6 +5,6 @@ __all__ = ['CylindricalStokesSolutionSmoothFreeSlip', 'CylindricalStokesSolution
            'CylindricalStokesSolutionDeltaFreeSlip', 'CylindricalStokesSolutionDeltaZeroSlip',
            'SphericalStokesSolutionSmoothFreeSlip', 'SphericalStokesSolutionSmoothZeroSlip',
            'SphericalStokesSolutionDeltaFreeSlip', 'SphericalStokesSolutionDeltaZeroSlip',
-           'Y', 'dYdphi', 'dYdtheta', 'to_spherical']
+           'Y', 'dYdphi', 'dYdtheta', 'to_spherical', 'from_spherical']
 from .cylindrical import *  # NOQA:F403
 from .spherical import *  # NOQA:F403

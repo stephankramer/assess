@@ -9,7 +9,7 @@ from math import sqrt, atan2, cos, sin, tan, acos, pi
 
 __all__ = ['SphericalStokesSolutionSmoothFreeSlip', 'SphericalStokesSolutionSmoothZeroSlip',
            'SphericalStokesSolutionDeltaFreeSlip', 'SphericalStokesSolutionDeltaZeroSlip',
-           'Y', 'dYdphi', 'dYdtheta', 'Y_cartesian', 'to_spherical']
+           'Y', 'dYdphi', 'dYdtheta', 'Y_cartesian', 'to_spherical', 'from_spherical']
 
 
 # Legendre polynomials and their derivatives:
@@ -26,8 +26,8 @@ def Y(l, m, theta, phi):
     which is equal to the real part of
     `scipy.special.sph_harm <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.sph_harm.html>`_.
 
-    :param m: order of the harmonic
     :param l: degree of the harmonic
+    :param m: order of the harmonic
     :param theta: co-latitude in [0, pi]
     :param phi: longitude in [0, 2*pi]
     """
@@ -39,8 +39,8 @@ def Y(l, m, theta, phi):
 def dYdphi(l, m, theta, phi):
     r"""Colatitudinal derivative of spherical harmonic function :math:`Y_{lm}(\theta, \varphi)`
 
-    :param m: order of the harmonic
     :param l: degree of the harmonic
+    :param m: order of the harmonic
     :param theta: co-latitude in [0, pi]
     :param phi: longitude in [0, 2*pi]
     """
@@ -52,8 +52,8 @@ def dYdtheta(l, m, theta, phi):
     r"""Longitudinal derivative of spherical harmonic function :math:`Y_{lm}(\theta, \varphi)`
 
 
-    :param m: order of the harmonic
     :param l: degree of the harmonic
+    :param m: order of the harmonic
     :param theta: co-latitude in [0, pi]
     :param phi: longitude in [0, 2*pi]
     """
@@ -72,22 +72,32 @@ def to_spherical(X):
     """Convert Cartesian 3D coordinates X to spherical r, theta, phi
 
     :param X: Cartesian 3D coordinates
-    :returns r, theta, phi: radius, longitude, colatitude"""
+    :returns r, theta, phi: radius, colatitude, longitude
+    """
     r = sqrt(X[0]**2+X[1]**2+X[2]**2)
     theta = acos(X[2]/r)
     phi = atan2(X[1], X[0])
     return r, theta, phi
 
 
+def from_spherical(r, theta, phi):
+    """Convert spherical r, theta, phi to 3D Cartesian coordinates.
+
+    :param r,: radius
+    :param theta: co-latitude in [0, pi]
+    :param phi: longitude in [0, 2*pi]
+    :returns X: Cartesian 3D coordinates
+    """
+    return [r*cos(phi), r*cos(theta)*sin(phi), r*sin(theta)*sin(phi)]
+
+
 def Y_cartesian(l, m, X):
     """Real-valued spherical harmonic function that takes Cartesian coordinates
 
     See :func:`Y`
-    return Y
     :param m: order of the harmonic
     :param l: degree of the harmonic
-    :param theta: co-latitude in [0, pi]
-    :param phi: longitude in [0, 2*pi]
+    :param X: Cartesian 3D coordinates
     """
     r, theta, phi = to_spherical(X)
     return Y(l, m, theta, phi)
@@ -141,7 +151,7 @@ class SphericalStokesSolution(AnalyticalStokesSolution):
         # u_theta = -1/r d/dtheta d/dr (r P)
         #         = -1/r dP/dtheta - d/dtheta d/dr P
         #         = -(1/r Pl + dPl/dr) dY/dtheta
-        return -(self.Pl(r)/r + self.dPldr(r)) * dYdtheta(self.m, self.l, theta, phi)
+        return -(self.Pl(r)/r + self.dPldr(r)) * dYdtheta(self.l, self.m, theta, phi)
 
     def u_phi(self, r, theta, phi):
         """Return longitudinal (eastward) component of velocity.
@@ -163,7 +173,7 @@ class SphericalStokesSolution(AnalyticalStokesSolution):
         :param phi: longitude in [0, 2*pi]
         """
         # u_r = 1/r \Lambda^2 P = -1/r l(l+1) P
-        return -self.l*(self.l+1)*self.Pl(r)*Y(self.m, self.l, theta, phi)/r
+        return -self.l*(self.l+1)*self.Pl(r)*Y(self.l, self.m, theta, phi)/r
 
     def tau_rr(self, r, theta, phi):
         """Return radial component of deviatoric stress.
@@ -174,7 +184,29 @@ class SphericalStokesSolution(AnalyticalStokesSolution):
         """
         # tau_rr = 2 nu d/dr (1/r \Lambda^2 P)
         #        = -2 nu l(l+1) [1/r dP/dr - 1/r^2 P]
-        return -2*self.nu*self.l*(self.l+1)*(self.dPldr(r) - self.Pl(r)/r)*Y(self.m, self.l, theta, phi)/r
+        return -2*self.nu*self.l*(self.l+1)*(self.dPldr(r) - self.Pl(r)/r)*Y(self.l, self.m, theta, phi)/r
+
+    def tau_rtheta(self, r, theta, phi):
+        """Return colatitudinal component of shear stress.
+
+        :param r: radius
+        :param theta: co-latitude in [0, pi]
+        :param phi: longitude in [0, 2*pi]
+        """
+        # tau_rphi = \nu d/dtheta (1/r^2 \Lambda^2 P - d^2P/dr^2 + 2/r^2 P)
+        l, m = self.l, self.m
+        return self.nu * (-l*(l+1)*self.Pl(r)/r**2 - self.dPldr2(r) + 2*self.Pl(r)/r**2)*dYdtheta(l, m, theta, phi)
+
+    def tau_rphi(self, r, theta, phi):
+        """Return longitudinal component of shear stress.
+
+        :param r: radius
+        :param theta: co-latitude in [0, pi]
+        :param phi: longitude in [0, 2*pi]
+        """
+        # tau_rphi = \nu d/dphi (1/r^2 \Lambda^2 P - d^2P/dr^2 + 2/r^2 P)/sin(theta)
+        l, m = self.l, self.m
+        return self.nu * (-l*(l+1)*self.Pl(r)/r**2 - self.dPldr2(r) + 2*self.Pl(r)/r**2)*dYdphi(l, m, theta, phi)/sin(theta)
 
     def radial_stress(self, r, theta, phi):
         """Return radial component of stress.
@@ -266,6 +298,14 @@ class SphericalStokesSolutionDelta(SphericalStokesSolution):
         l = self.l
         return l*A*r**(l-1) + (-l-1)*B*r**(-l-2) + (l+2)*C*r**(l+1) + (-l+1)*D*r**-l
 
+    def dPldr2(self, r):
+        """Second radial derivative of radial part of poloidal function
+
+        :param r: radius"""
+        A, B, C, D = self.ABCD
+        l = self.l
+        return l*(l-1)*A*r**(l-2) + (-l-1)*(-l-2)*B*r**(-l-3) + (l+2)*(l+1)*C*r**l + (-l+1)*(-l)*D*r**(-l-1)
+
     def p(self, r, theta, phi):
         """Pressure solution
 
@@ -274,7 +314,7 @@ class SphericalStokesSolutionDelta(SphericalStokesSolution):
         :param phi: longitude in [0, 2*pi]
         """
         l, m = self.l, self.m
-        return (self.G*r**l + self.H*r**(-l-1))*Y(m, l, theta, phi)
+        return (self.G*r**l + self.H*r**(-l-1))*Y(l, m, theta, phi)
 
 
 class SphericalStokesSolutionSmooth(SphericalStokesSolution):
@@ -330,6 +370,14 @@ class SphericalStokesSolutionSmooth(SphericalStokesSolution):
         l, k = self.l, self.k
         return l*A*r**(l-1) + (-l-1)*B*r**(-l-2) + (l+2)*C*r**(l+1) + (-l+1)*D*r**-l + (k+3)*E*r**(k+2)
 
+    def dPldr2(self, r):
+        """Second radial derivative of radial part of poloidal function
+
+        :param r: radius"""
+        A, B, C, D, E = self.ABCDE
+        l, k = self.l, self.k
+        return l*(l-1)*A*r**(l-2) + (-l-1)*(-l-2)*B*r**(-l-3) + (l+2)*(l+1)*C*r**l + (-l+1)*(-l)*D*r**(-l-1) + (k+3)*(k+2)*E*r**(k+1)
+
     def p(self, r, theta, phi):
         """Pressure solution
 
@@ -338,7 +386,7 @@ class SphericalStokesSolutionSmooth(SphericalStokesSolution):
         :param phi: longitude in [0, 2*pi]
         """
         k, l, m = self.k, self.l, self.m
-        return (self.G*r**l + self.H*r**(-l-1) + self.K*r**(k+1))*Y(m, l, theta, phi)
+        return (self.G*r**l + self.H*r**(-l-1) + self.K*r**(k+1))*Y(l, m, theta, phi)
 
     def delta_rho(self, r, theta, phi):
         r"""Perturbation density :math:`\rho'` in forcing term: :math:`g\rho'\hat r`
@@ -348,7 +396,7 @@ class SphericalStokesSolutionSmooth(SphericalStokesSolution):
         :param phi: longitude in [0, 2*pi]
         """
         k, l, m = self.k, self.l, self.m
-        return r**k * Y(m, l, theta, phi) / self.Rp**k
+        return r**k * Y(l, m, theta, phi) / self.Rp**k
 
     def delta_rho_cartesian(self, X):
         r"""Perturbation density :math:`\rho'` in forcing term: :math:`g\rho'\hat r`

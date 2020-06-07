@@ -80,6 +80,15 @@ class CylindricalStokesSolution(AnalyticalStokesSolution):
         dpsi_drdphi = self.n*cos(self.n*phi)*self.dpsi_rdr(r)
         return 2*self.nu*(dpsi_dphi/r**2 - dpsi_drdphi/r)
 
+    def tau_rphi(self, r, phi):
+        r"""Return shear stress :math:`\tau_{r\varphi}`.
+
+        :param r: radius
+        :param phi: angle with x-axis."""
+        dpsi_dphi2 = -self.n**2 * self.psi_r(r)
+        return self.nu*(self.dpsi_rdr2(r) - self.dpsi_rdr(r)/r -dpsi_dphi2/r**2)*sin(self.n*phi)
+
+
     def radial_stress(self, r, phi):
         """Return radial component of stress.
 
@@ -156,6 +165,14 @@ class CylindricalStokesSolutionDelta(CylindricalStokesSolution):
         n = self.n
         return A*n*r**(n-1) + B*-n*r**(-n-1) + C*(n+2)*r**(n+1) + D*(-n+2)*r**(-n+1)
 
+    def dpsi_rdr2(self, r):
+        """Second radial derivative of radial part of streamfunction
+
+        :param r: radius"""
+        A, B, C, D = self.ABCD
+        n = self.n
+        return A*n*(n-1)*r**(n-2) + B*-n*(-n-1)*r**(-n-2) + C*(n+2)*(n+1)*r**n + D*(-n+2)*(-n+1)*r**(-n)
+
     def p(self, r, phi):
         """Pressure solution
 
@@ -209,7 +226,15 @@ class CylindricalStokesSolutionSmooth(CylindricalStokesSolution):
         :param r: radius"""
         A, B, C, D, E = self.ABCDE
         n, k = self.n, self.k
-        return A*n*r**(n-1) + B*-n*r**(-n-1) + C*(n+2)*r**(n+1) + D*(-n+2)*r**(-n+1)+E*(k+3)*r**(k+2)
+        return A*n*r**(n-1) + B*-n*r**(-n-1) + C*(n+2)*r**(n+1) + D*(-n+2)*r**(-n+1) + E*(k+3)*r**(k+2)
+
+    def dpsi_rdr2(self, r):
+        """Second radial derivative of radial part of streamfunction
+
+        :param r: radius"""
+        A, B, C, D, E = self.ABCDE
+        n, k = self.n, self.k
+        return A*n*(n-1)*r**(n-2) + B*-n*(-n-1)*r**(-n-2) + C*(n+2)*(n+1)*r**n + D*(-n+2)*(-n+1)*r**(-n) + E*(k+3)*(k+2)*r**(k+1)
 
     def p(self, r, phi):
         """Pressure solution
@@ -246,7 +271,7 @@ class CylindricalStokesSolutionSmoothFreeSlip(CylindricalStokesSolutionSmooth):
         :param nu: viscosity
         :param g: forcing strength"""
         ABCDE = coefficients_cylinder_smooth_fs(Rp, Rm, k, n, g, nu)
-        super(CylindricalStokesSolutionSmoothFreeSlip, self).__init__(ABCDE, n, k, Rp=Rp, Rm=Rm, nu=nu, g=g)
+        super(CylindricalStokesSolutionSmoothFreeSlip, self).__init__(ABCDE, k, n, Rp=Rp, Rm=Rm, nu=nu, g=g)
 
 
 class CylindricalStokesSolutionSmoothZeroSlip(CylindricalStokesSolutionSmooth):
@@ -259,7 +284,7 @@ class CylindricalStokesSolutionSmoothZeroSlip(CylindricalStokesSolutionSmooth):
         :param nu: viscosity
         :param g: forcing strength"""
         ABCDE = coefficients_cylinder_smooth_ns(Rp, Rm, k, n, g, nu)
-        super(CylindricalStokesSolutionSmoothZeroSlip, self).__init__(ABCDE, n, k, Rp=Rp, Rm=Rm, nu=nu, g=g)
+        super(CylindricalStokesSolutionSmoothZeroSlip, self).__init__(ABCDE, k, n, Rp=Rp, Rm=Rm, nu=nu, g=g)
 
 
 class CylindricalStokesSolutionDeltaFreeSlip(CylindricalStokesSolutionDelta):
