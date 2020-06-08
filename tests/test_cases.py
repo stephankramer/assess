@@ -153,7 +153,7 @@ class SmoothCylindricalFixtures(CylindricalFixtures, SmoothFixtures):
     def k(self, request, n):
         k = request.param
         if (k+1)**2 == n**2 or (k+3)**2 == n**2:
-            pytest.skip()
+            request.node.add_marker(pytest.mark.xfail(raises=NotImplementedError, strict=True))
         return k
 
 
@@ -162,7 +162,7 @@ class SmoothSphericalFixtures(SphericalFixtures, SmoothFixtures):
     def k(self, request, l):
         k = request.param
         if (k+1)*(k+2) == l*(l+1) or (k+3)*(k+4) == l*(l+1):
-            pytest.skip()
+            request.node.add_marker(pytest.mark.xfail(raises=NotImplementedError, strict=True))
         return k
 
 

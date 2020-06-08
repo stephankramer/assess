@@ -124,6 +124,10 @@ class SphericalStokesSolution(AnalyticalStokesSolution):
     """
     def __init__(self, l, m, Rp=2.22, Rm=1.22, nu=1.0, g=1.0):
         super(SphericalStokesSolution, self).__init__(Rp=Rp, Rm=Rm, nu=nu, g=g)
+        if l < 0:
+            raise ValueError("Spherical order l cannot be negative.")
+        if abs(m) > l:
+            raise ValueError("Absolute value of spherical degree m should be equal or smaller than order l")
         self.l = l
         self.m = m
 
@@ -415,6 +419,8 @@ class SphericalStokesSolutionSmoothFreeSlip(SphericalStokesSolutionSmooth):
         :param Rm: inner radius
         :param nu: viscosity
         :param g: forcing strength"""
+        if (k+1)*(k+2) == l*(l+1) or (k+3)*(k+4) == l*(l+1):
+            raise NotImplementedError("Smooth solution not implemented for k={}, l={}".format(k, l))
         ABCDE = coefficients_sphere_smooth_fs(Rp, Rm, k, l, g, nu)
         super(SphericalStokesSolutionSmoothFreeSlip, self).__init__(ABCDE, k, l, m, Rp=Rp, Rm=Rm, nu=nu, g=g)
 
@@ -429,6 +435,8 @@ class SphericalStokesSolutionSmoothZeroSlip(SphericalStokesSolutionSmooth):
         :param Rm: inner radius
         :param nu: viscosity
         :param g: forcing strength"""
+        if (k+1)*(k+2) == l*(l+1) or (k+3)*(k+4) == l*(l+1):
+            raise NotImplementedError("Smooth solution not implemented for k={}, l={}".format(k, l))
         ABCDE = coefficients_sphere_smooth_ns(Rp, Rm, k, l, g, nu)
         super(SphericalStokesSolutionSmoothZeroSlip, self).__init__(ABCDE, k, l, m, Rp=Rp, Rm=Rm, nu=nu, g=g)
 

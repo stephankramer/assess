@@ -40,6 +40,8 @@ class CylindricalStokesSolution(AnalyticalStokesSolution):
     def __init__(self, n, Rp=2.22, Rm=1.22, nu=1.0, g=1.0):
         """Initialize basic parameters of analytical solution in cylindrical domain."""
         super(CylindricalStokesSolution, self).__init__(Rp=Rp, Rm=Rm, nu=nu, g=g)
+        if n <= 1:
+            raise NotImplementedError("Cylindrical cases only implemented for n>1")
         self.n = n
 
     def psi_r(self, r):
@@ -86,8 +88,7 @@ class CylindricalStokesSolution(AnalyticalStokesSolution):
         :param r: radius
         :param phi: angle with x-axis."""
         dpsi_dphi2 = -self.n**2 * self.psi_r(r)
-        return self.nu*(self.dpsi_rdr2(r) - self.dpsi_rdr(r)/r -dpsi_dphi2/r**2)*sin(self.n*phi)
-
+        return self.nu*(self.dpsi_rdr2(r) - self.dpsi_rdr(r)/r - dpsi_dphi2/r**2)*sin(self.n*phi)
 
     def radial_stress(self, r, phi):
         """Return radial component of stress.
@@ -270,6 +271,8 @@ class CylindricalStokesSolutionSmoothFreeSlip(CylindricalStokesSolutionSmooth):
         :param Rm: inner radius
         :param nu: viscosity
         :param g: forcing strength"""
+        if abs(k+3) == n or abs(k+1) == n:
+            raise NotImplementedError("Smooth solution not implemented for k={}, n={}".format(k, n))
         ABCDE = coefficients_cylinder_smooth_fs(Rp, Rm, k, n, g, nu)
         super(CylindricalStokesSolutionSmoothFreeSlip, self).__init__(ABCDE, k, n, Rp=Rp, Rm=Rm, nu=nu, g=g)
 
@@ -283,6 +286,8 @@ class CylindricalStokesSolutionSmoothZeroSlip(CylindricalStokesSolutionSmooth):
         :param Rm: inner radius
         :param nu: viscosity
         :param g: forcing strength"""
+        if abs(k+3) == n or abs(k+1) == n:
+            raise NotImplementedError("Smooth solution not implemented for k={}, n={}".format(k, n))
         ABCDE = coefficients_cylinder_smooth_ns(Rp, Rm, k, n, g, nu)
         super(CylindricalStokesSolutionSmoothZeroSlip, self).__init__(ABCDE, k, n, Rp=Rp, Rm=Rm, nu=nu, g=g)
 
