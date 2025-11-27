@@ -1,0 +1,24 @@
+[project]
+name = "assess"
+version = "1.0"
+description = "Assess is a python package that implements a number of analytical solutions to the Stokes equations in cylindrical and spherical shell domains."
+readme = "README.rst"
+authors = [
+    { name = "Stephan Kramer", email = "s.kramer@imperial.ac.uk" }
+]
+license = { text = "GNU Lesser General Public License v3 (LGPLv3)" }
+keywords = ["Stokes equations", "analytical solutions", "mantle flow", "spherical shell"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering"
+]
+dependencies = [
+    "numpy",
+    "scipy"
+]
+
+[project.urls]
+Homepage = "https://github.com/stephankramer/assess"
