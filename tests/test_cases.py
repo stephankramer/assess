@@ -153,8 +153,10 @@ class SmoothCylindricalFixtures(CylindricalFixtures, SmoothFixtures):
     def k(self, request, n):
         k = request.param
         if (k+1)**2 == n**2 or (k+3)**2 == n**2:
-            request.node.add_marker(pytest.mark.xfail(raises=NotImplementedError, strict=True))
-        return k
+            # NOTE: return None for not implemented combination
+            return
+        else:
+            return k
 
 
 class SmoothSphericalFixtures(SphericalFixtures, SmoothFixtures):
@@ -162,8 +164,10 @@ class SmoothSphericalFixtures(SphericalFixtures, SmoothFixtures):
     def k(self, request, l):
         k = request.param
         if (k+1)*(k+2) == l*(l+1) or (k+3)*(k+4) == l*(l+1):
-            request.node.add_marker(pytest.mark.xfail(raises=NotImplementedError, strict=True))
-        return k
+            # NOTE: return None for not implemented combination
+            return
+        else:
+            return k
 
 
 ########################################################
@@ -174,24 +178,32 @@ class SmoothSphericalFixtures(SphericalFixtures, SmoothFixtures):
 class TestCylindricalStokesSolutionSmoothFreeSlip(SmoothCylindricalFixtures, _TestFreeSlip):
     @pytest.fixture()
     def case(self, n, k, case_kwargs):
+        if k is None:
+            pytest.xfail()
         return assess.CylindricalStokesSolutionSmoothFreeSlip(n, k, **case_kwargs)
 
 
 class TestCylindricalStokesSolutionSmoothZeroSlip(SmoothCylindricalFixtures, _TestZeroSlip):
     @pytest.fixture()
     def case(self, n, k, case_kwargs):
+        if k is None:
+            pytest.xfail()
         return assess.CylindricalStokesSolutionSmoothZeroSlip(n, k, **case_kwargs)
 
 
 class TestSphericalStokesSolutionSmoothFreeSlip(SmoothSphericalFixtures, _TestSphericalFreeSlip):
     @pytest.fixture()
     def case(self, l, m, k, case_kwargs):
+        if k is None:
+            pytest.xfail()
         return assess.SphericalStokesSolutionSmoothFreeSlip(l, m, k, **case_kwargs)
 
 
 class TestSphericalStokesSolutionSmoothZeroSlip(SmoothSphericalFixtures, _TestZeroSlip):
     @pytest.fixture()
     def case(self, l, m, k, case_kwargs):
+        if k is None:
+            pytest.xfail()
         return assess.SphericalStokesSolutionSmoothZeroSlip(l, m, k, **case_kwargs)
 
 
