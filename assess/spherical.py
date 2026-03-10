@@ -24,7 +24,7 @@ def Y(l, m, theta, phi):
         Y_{lm}(\theta, \varphi) = \sqrt{\frac{(2l+1)}{4\pi}\frac{(l-m)!}{(l+m)!}}P_l^m(\cos(\theta))\cos(m\varphi)
 
     which is equal to the real part of
-    `scipy.special.sph_harm <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.sph_harm.html>`_.
+    `scipy.special.sph_harm_y <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.sph_harm_y.html>`_.
 
     :param l: degree of the harmonic
     :param m: order of the harmonic
@@ -33,7 +33,7 @@ def Y(l, m, theta, phi):
     """
     # everywhere we take the real part of Y, corresponding to the cos(m phi) part of the solution
     # NOTE: theta and phi are swapped in scipy wrt our definitions
-    return scipy.special.sph_harm(m, l, phi, theta).real
+    return scipy.special.sph_harm_y(l, m, phi, theta).real
 
 
 def dYdphi(l, m, theta, phi):
