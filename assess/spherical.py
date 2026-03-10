@@ -45,7 +45,7 @@ def dYdphi(l, m, theta, phi):
     :param phi: longitude in [0, 2*pi]
     """
     # except in theta derivatives (of odd order)
-    return -m * scipy.special.sph_harm(m, l, phi, theta).imag
+    return -m * scipy.special.sph_harm_y(l, m, phi, theta).imag
 
 
 def dYdtheta(l, m, theta, phi):
