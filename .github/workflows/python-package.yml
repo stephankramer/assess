@@ -8,6 +8,10 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # Scheduled build at 0230 UTC every month on the 13th to detect bitrot.
+    - cron:  '30 2 13 * *'
 
 jobs:
   build:
