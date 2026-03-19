@@ -32,8 +32,7 @@ def Y(l, m, theta, phi):
     :param phi: longitude in [0, 2*pi]
     """
     # everywhere we take the real part of Y, corresponding to the cos(m phi) part of the solution
-    # NOTE: theta and phi are swapped in scipy wrt our definitions
-    return scipy.special.sph_harm_y(l, m, phi, theta).real
+    return scipy.special.sph_harm_y(l, m, theta, phi).real
 
 
 def dYdphi(l, m, theta, phi):
@@ -45,7 +44,7 @@ def dYdphi(l, m, theta, phi):
     :param phi: longitude in [0, 2*pi]
     """
     # except in theta derivatives (of odd order)
-    return -m * scipy.special.sph_harm_y(l, m, phi, theta).imag
+    return -m * scipy.special.sph_harm_y(l, m, theta, phi).imag
 
 
 def dYdtheta(l, m, theta, phi):
